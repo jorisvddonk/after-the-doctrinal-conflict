@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://main.gd" type="Script" id=1]
 [ext_resource path="res://PlayerShip.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Ship.tscn" type="PackedScene" id=3]
 [ext_resource path="res://content/sc2/cruiser-big-000.png" type="Texture" id=4]
+[ext_resource path="res://PlanetTexture.tscn" type="PackedScene" id=5]
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource( 1 )
@@ -13,3 +14,9 @@ scale = Vector2( 2, 2 )
 texture = ExtResource( 4 )
 
 [node name="Ship" parent="." instance=ExtResource( 3 )]
+
+[node name="TextureRect" parent="." instance=ExtResource( 5 )]
+margin_left = 25.4493
+margin_top = 45.1682
+margin_right = 25.4493
+margin_bottom = 45.1682
