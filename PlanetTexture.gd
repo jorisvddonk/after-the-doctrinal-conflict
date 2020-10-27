@@ -2,8 +2,9 @@ extends TextureRect
 
 const WIDTH = 256 * 3
 const HEIGHT = 256
-const ITERCOUNT = 75
+const ITERCOUNT = 250
 const H_ABILITY = 3 # the higher, the more "horizontal' lines can get.
+const RISE_LOWER_AMOUNT = 10 # determines by how much the area between the lines will be raised or lowered
 
 func _ready():
 	randomize()
@@ -17,7 +18,7 @@ func _ready():
 	var arr = []
 	for i in range(WIDTH):
 		for j in range(HEIGHT):
-			arr.push_back(ITERCOUNT * 0.5)
+			arr.push_back(128)
 			
 	
 	
@@ -28,9 +29,9 @@ func _ready():
 		var f2_x_orig = f1_x_orig + int(randf() * (WIDTH / H_ABILITY))
 		var f2_x_off = 0 - (randf() * H_ABILITY)
 		
-		var off = 1 # determines whether or not the area between the liens will be raised or lowered
+		var off = RISE_LOWER_AMOUNT
 		if randf() < 0.5:
-			off = -1
+			off *= -1
 	
 		for j in range(HEIGHT):
 			var i_min = f1_x_orig + int(f1_x_off * j)
