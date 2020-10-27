@@ -58,11 +58,15 @@ func _ready():
 	
 	
 	dynImage.lock()
+	var gradient = Gradient.new()
+	gradient.add_point(0, Color(0, 0, 0))
+	gradient.add_point(0.5, Color(1.0, 1.0, 0))
+	gradient.add_point(1.0, Color(1.0, 0, 0))
 	var fI = float(ITERCOUNT)
 	for i in range(WIDTH):
 		for j in range(HEIGHT):
-			var p = max(min(float(arr[j * WIDTH + i]) / fI, 255), 0)
-			dynImage.set_pixel(i, j, Color(p, p, p, 1))
+			var p = float(arr[j * WIDTH + i]) / fI
+			dynImage.set_pixel(i, j, gradient.interpolate(p))
 	dynImage.unlock()
 	
 	imageTexture.create_from_image(dynImage)
