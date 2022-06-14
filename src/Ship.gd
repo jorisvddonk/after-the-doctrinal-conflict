@@ -13,12 +13,13 @@ var thrust_vec = null
 var target = null
 
 var velocity = Vector2(0,0)
-export var acceleration = 230
-export var rotationSpeed = 3
-export var maxSpeed = 300
+@export var acceleration = 230
+@export var rotationSpeed = 3
+@export var maxSpeed = 300
 
 func _ready():
-	self.connect("shoot", self, "_on_shoot")
+	pass
+	#self.shoot.connect(self._on_shoot)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -72,17 +73,17 @@ func thrust(vel, delta):
 	#pass # temporarily disabled
 	velocity += Vector2(0, -acceleration*delta*vel).rotated(rotation)
 
-func rotate_(angle):
-	rotation += clamp(angle, -PI * 0.01, PI * 0.01)
+func rotate_(angle: float):
+	rotation += clamp(angle, -PI * 0.01, PI * 0.01) as float
 
 func _draw():
 	var inv = get_global_transform().inverse()
 	if thrust_vec != null:
 		draw_set_transform(Vector2.ZERO, inv.get_rotation(), Vector2.ONE) # undo global rotation
-		draw_line(Vector2.ZERO, thrust_vec, Color.red, 2.0)
+		draw_line(Vector2.ZERO, thrust_vec, Color.RED, 2.0)
 	if target != null:
 		draw_set_transform(inv.origin, inv.get_rotation(), Vector2.ONE) # undo global rotation and position
-		draw_circle(target, 10, Color.red)
+		draw_circle(target, 10, Color.RED)
 
 func intercept(shooter: Vector2, bullet_speed: float, target: Vector2, target_velocity: Vector2):
 	var displacement = shooter - target
@@ -91,10 +92,10 @@ func intercept(shooter: Vector2, bullet_speed: float, target: Vector2, target_ve
 	var c = -displacement.dot(displacement)
 	var lrg = largest_root_of_quadratic_equation(a, b, c)
 	if lrg == NAN or lrg == null:
-	  return null
+		return null
 	else:
-	  var interception_world = target + (target_velocity * lrg)
-	  return interception_world
+		var interception_world = target + (target_velocity * lrg)
+		return interception_world
 
 func largest_root_of_quadratic_equation(a, b, c):
 	return (b + sqrt(b * b - 4 * a * c)) / (2 * a)
