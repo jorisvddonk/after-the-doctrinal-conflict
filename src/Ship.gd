@@ -9,6 +9,7 @@ var xpid = PIDController.new(-0.45, -0.2, -80, -10, 10, -10, 10)
 var ypid = PIDController.new(-0.45, -0.2, -80, -10, 10, -10, 10)
 const OFFSET_ALLOWED = 0.0872664626 # 5 degrees
 const SHOOT_OFFSET_ALLOWED = OFFSET_ALLOWED * 0.1
+const SHOT_BASE_SPEED = 300
 var thrust_vec = null
 var target = null
 
@@ -24,7 +25,7 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	var player : Node2D = self.owner.get_node("PlayerShip")
-	var possible_bullet_velocity = velocity.length() + 300
+	var possible_bullet_velocity = velocity.length() + SHOT_BASE_SPEED
 	
 	target = player.position
 	var tgtError = target - position
@@ -65,9 +66,9 @@ func _process(delta):
 		
 	position += velocity * delta
 	
-	emit_signal("shoot", target) # TODO: figure out _when_ to shoot
+	emit_signal("shoot", SHOT_BASE_SPEED, target) # TODO: figure out _when_ to shoot
 
-	update() # redraw
+	queue_redraw() # redraw
 
 func thrust(vel, delta):
 	#pass # temporarily disabled

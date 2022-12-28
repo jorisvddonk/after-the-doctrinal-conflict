@@ -1,5 +1,6 @@
 extends Sprite2D
 signal shoot
+signal debug
 
 var velocity = Vector2(0,0)
 @export var acceleration = 230
@@ -20,5 +21,7 @@ func _process(delta):
 	position += velocity * delta
 	
 	if Input.is_key_pressed(KEY_SPACE):
-		emit_signal("shoot")
+		emit_signal("shoot", 300, null)
+	if Input.is_key_pressed(KEY_ENTER):
+		emit_signal("debug")
 

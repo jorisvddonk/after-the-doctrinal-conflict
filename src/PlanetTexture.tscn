@@ -1,9 +1,6 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=2 format=3 uid="uid://u56ioprcptyi"]
 
-[ext_resource path="res://PlanetTexture.gd" type="Script" id=1]
+[ext_resource type="Script" path="res://PlanetTexture.gd" id="1"]
 
 [node name="TextureRect" type="TextureRect"]
-script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+script = ExtResource("1")

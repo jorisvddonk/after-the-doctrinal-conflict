@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://dxn2nhj5k6iuh"]
+
+[ext_resource type="Script" path="res://Ship2.gd" id="1_gebq5"]
+[ext_resource type="Texture2D" uid="uid://cugogqdhbaijg" path="res://content/sc2/terminator-big-000.png" id="2_cxiwi"]
+
+[node name="Ship2" type="Node2D"]
+script = ExtResource("1_gebq5")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(0, -7)
+scale = Vector2(2, 2)
+texture = ExtResource("2_cxiwi")

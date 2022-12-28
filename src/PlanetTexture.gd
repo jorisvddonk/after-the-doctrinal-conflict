@@ -2,7 +2,7 @@ extends TextureRect
 
 const WIDTH = 256 * 3
 const HEIGHT = 256
-const ITERCOUNT = 250
+const ITERCOUNT = 100 # should be higher, like 250
 const H_ABILITY = 3 # the higher, the more "horizontal' lines can get.
 const RISE_LOWER_AMOUNT = 10 # determines by how much the area between the lines will be raised or lowered
 
@@ -66,8 +66,13 @@ func _ready():
 	for i in range(WIDTH):
 		for j in range(HEIGHT):
 			var p = float(arr[j * WIDTH + i]) / fI
-			dynImage.set_pixel(i, j, gradient.interpolate(p))
+			dynImage.set_pixel(i, j, gradient.sample(p))
 	#dynImage.unlock()
 	
 	imageTexture.create_from_image(dynImage)
 	self.texture = imageTexture
+	
+	# okay, this doesn't work anymore in godot 4...
+	# TODO: fix.
+	
+	queue_redraw()
