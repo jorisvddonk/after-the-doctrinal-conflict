@@ -66,7 +66,7 @@ func _process(delta):
 		
 	position += velocity * delta
 	
-	emit_signal("shoot", SHOT_BASE_SPEED, target) # TODO: figure out _when_ to shoot
+	#emit_signal("shoot", SHOT_BASE_SPEED, target) # TODO: figure out _when_ to shoot
 
 	queue_redraw() # redraw
 

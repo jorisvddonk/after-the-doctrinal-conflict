@@ -6,9 +6,10 @@ var rng = RandomNumberGenerator.new()
 func _ready():
 	rng.randomize()
 	$PlayerShip.shoot.connect(_on_Ship_shoot.bind($PlayerShip))
-	$PlayerShip.debug.connect(_on_Debug.bind($Ship2))
+	$PlayerShip.debug.connect(_on_Debug)
 	$Ship.shoot.connect(_on_Ship_shoot.bind($Ship))
 	$Ship2.shoot.connect(_on_Ship_shoot.bind($Ship2))
+	$Ship3.shoot.connect(_on_Ship_shoot.bind($Ship3))
 
 func _on_Ship_shoot(shotBaseSpeed, targetpos, ship):
 	var bullet = Bullet.instantiate()
@@ -20,5 +21,6 @@ func _on_Ship_shoot(shotBaseSpeed, targetpos, ship):
 	bullet.rotation = ship.rotation
 	add_child(bullet)
 
-func _on_Debug(tgtShip):
-	tgtShip.rotation = rng.randf_range(-10.0, 10.0)
+func _on_Debug():
+	$Ship2.rotation = rng.randf_range(-10.0, 10.0)
+	$Ship3.rotation = rng.randf_range(-10.0, 10.0)

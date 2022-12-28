@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://ct1mu4rd7axkx"]
+[gd_scene load_steps=6 format=3 uid="uid://ct1mu4rd7axkx"]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://c0s1vxe3p1ecc" path="res://PlayerShip.tscn" id="2"]
 [ext_resource type="PackedScene" uid="uid://dqxdal5wxfgqs" path="res://Ship.tscn" id="3"]
 [ext_resource type="PackedScene" uid="uid://dxn2nhj5k6iuh" path="res://Ship2.tscn" id="4_tyype"]
+[ext_resource type="PackedScene" uid="uid://c6wkqox4jd7kn" path="res://Ship3.tscn" id="5_6nvvg"]
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1")
@@ -15,3 +16,6 @@ scale = Vector2(2, 2)
 
 [node name="Ship2" parent="." instance=ExtResource("4_tyype")]
 position = Vector2(300, 0)
+
+[node name="Ship3" parent="." instance=ExtResource("5_6nvvg")]
+position = Vector2(100, 400)
