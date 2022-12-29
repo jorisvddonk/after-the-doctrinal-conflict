@@ -5,11 +5,11 @@ var rng = RandomNumberGenerator.new()
 
 func _ready():
 	rng.randomize()
-	$PlayerShip.shoot.connect(_on_Ship_shoot.bind($PlayerShip))
 	$PlayerShip.debug.connect(_on_Debug)
-	#$Ship.shoot.connect(_on_Ship_shoot.bind($Ship))
-	#$Ship2.shoot.connect(_on_Ship_shoot.bind($Ship2))
-	$Ship3.shoot.connect(_on_Ship_shoot.bind($Ship3))
+	for child in self.get_children():
+		print(child)
+		if child.has_signal('shoot'):
+			child.shoot.connect(_on_Ship_shoot.bind(child))
 
 func _on_Ship_shoot(shotBaseSpeed, targetpos, ship):
 	var bullet = Bullet.instantiate()

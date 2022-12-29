@@ -16,4 +16,11 @@ maxSpeed = 150
 [node name="Ship3" parent="." instance=ExtResource("5_6nvvg")]
 position = Vector2(100, 400)
 velocity = Vector2(0, 0)
-showDebugInfo = true
+
+[node name="Ship4" parent="." instance=ExtResource("5_6nvvg")]
+position = Vector2(599, 452)
+velocity = Vector2(0, 0)
+
+[node name="Ship5" parent="." instance=ExtResource("5_6nvvg")]
+position = Vector2(348, 563)
+velocity = Vector2(0, 0)
