@@ -7,16 +7,21 @@ signal debug
 @export var rotationSpeed = 3
 @export var maxSpeed = 300
 
+
+func check_velocity():
+	if velocity.length() > maxSpeed:
+		velocity = velocity.normalized() * maxSpeed # TODO: slowly ramp it down instead...
+
 func _process(delta):
 	if Input.is_key_pressed(KEY_W):
 		velocity += Vector2(0, -acceleration*delta).rotated(rotation)
+		check_velocity()
 	if Input.is_key_pressed(KEY_A):
 		rotation -= rotationSpeed*delta
 	if Input.is_key_pressed(KEY_D):
 		rotation += rotationSpeed*delta
 	
-	if velocity.length() > maxSpeed:
-		velocity = velocity.normalized() * maxSpeed
+
 		
 	position += velocity * delta
 	
