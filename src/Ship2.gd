@@ -53,10 +53,10 @@ func _process(delta):
 		var DPT1 = (P1 - self.position).length()
 		var DPT2 = (P2 - self.position).length()
 		if DPT1 > DPT2:
-				print("lagging, rotate away from target")
+				#print("lagging, rotate away from target")
 				self.turn_to(targetPos, -1)
 		if DPT2 > DPT1:
-				print("leading, rotate towards target")
+				#print("leading, rotate towards target")
 				self.turn_to(targetPos, 1)
 		var z = abs(DPT1 - DPT2)
 		if z < 30:
