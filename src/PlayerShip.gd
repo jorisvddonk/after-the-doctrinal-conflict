@@ -2,7 +2,7 @@ extends Sprite2D
 signal shoot
 signal debug
 
-var velocity = Vector2(0,0)
+@export var velocity = Vector2(0,0)
 @export var acceleration = 230
 @export var rotationSpeed = 3
 @export var maxSpeed = 300
@@ -21,7 +21,7 @@ func _process(delta):
 	position += velocity * delta
 	
 	if Input.is_key_pressed(KEY_SPACE):
-		emit_signal("shoot", 300, null)
+		emit_signal("shoot", 1500, null)
 	if Input.is_key_pressed(KEY_ENTER):
 		emit_signal("debug")
 
