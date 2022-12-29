@@ -3,19 +3,25 @@ extends Node2D
 signal shoot
 
 var Bullet = load("res://Bullet.tscn")
+var PIDController = load("res://PIDController.gd")
 
+var distancePID = PIDController.new(-0.45, -0.2, -80, -10, 10, -10, 10)
 const OFFSET_ALLOWED = 0.0872664626 # 5 degrees
 const SHOOT_OFFSET_ALLOWED = OFFSET_ALLOWED * 0.1
-const SHOT_BASE_SPEED = 700
 
-var velocity = Vector2(0,0)
+@export var velocity = Vector2(150,0)
 @export var acceleration = 230
-@export var rotationSpeed = 0.007
+@export var rotationSpeed = 0.015
 @export var maxSpeed = 300
+@export var showDebugInfo = false
+@export var shootBaseSpeed = 1000
 
 var P1
 var P2
 var intercepting
+var selfShootVec
+var selfRelShootVec
+var targetRelVec
 
 func _ready():
 	pass
@@ -23,7 +29,12 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	var target : Node2D = self.owner.get_node("PlayerShip")
-	var possible_bullet_velocity = velocity.length() + SHOT_BASE_SPEED
+	var tgtError = target.position - position
+	distancePID.setError(tgtError.length())
+	distancePID.step()
+	var isFacingTarget = position.direction_to(target.position).dot(Vector2.UP.rotated(rotation)) > 0.5
+	
+	
 	
 	# Determine if we need to lead our shot more, or lag our shot more:
 	# Take our current "shooting angle" as an infinite line, and intersect it with the target ship's motion vector. This is point P1
@@ -33,12 +44,14 @@ func _process(delta):
 	# Calculate the distance between the target and P1 (DPT1), and the distance between the target and P2 (DPT2).
 	# If DPT1 > DPT2, our shot is 'leading'
 	# If DPT2 > DPT1, our shot is 'trailing' (lagging)
-	# When leading, we need to rotate towards target.
-	# When lagging, we need to rotate away from target.
+	# Regardless of leading of ladding, we turn towards P2.
 	
-	var selfShootVec = Vector2(0, -possible_bullet_velocity).rotated(rotation)
+	#var selfShootVec = Vector2(0, -(velocity.length() + shootBaseSpeed)).rotated(rotation)
 	var targetPos = target.position
 	var targetVec = target.velocity
+	targetRelVec = target.velocity - velocity
+	selfShootVec = targetVec * 1 + (Vector2(0, -shootBaseSpeed).rotated(rotation))
+	selfRelShootVec = targetRelVec * 1 + (Vector2(0, -shootBaseSpeed).rotated(rotation))
 	var is_truly_stationary = false
 	
 	if targetVec.length() == 0:
@@ -48,43 +61,45 @@ func _process(delta):
 	P1 = self.intersect(position, selfShootVec, targetPos, targetVec)
 	if P1 != null:
 		intercepting = false
-		var secondsUntilShotAtP1 = (P1 - position).length() / possible_bullet_velocity # we can only do this because we know P1 is on our shoot vector
-		var P2_rel = (targetVec * secondsUntilShotAtP1) # P2, but relative to the target ship's own center (as origin)
+		var secondsUntilShotAtP1 = (P1 - position).length() / selfShootVec.length() # we can only do this because we know P1 is on our shoot vector
+		var P2_rel = (targetRelVec * secondsUntilShotAtP1) # P2, but relative to the target ship's own center (as origin)
 		P2 = P2_rel + targetPos
 		var DPT1 = (P1 - targetPos).length()
 		var DPT2 = (P2 - targetPos).length()
-		if DPT2 > DPT1:
-				print("lagging, rotate away from target")
-				self.turn_to(targetPos, -1)
-		if DPT1 > DPT2:
-				print("leading, rotate towards target")
-				self.turn_to(targetPos, 1)
-		var z = abs(DPT1 - DPT2)
-		if z < 80:
-			emit_signal("shoot", SHOT_BASE_SPEED, P1)
-			
+		var z = abs((P1 - P2).length())
+		if z < 300: # TODO: also shoot if the current shoot vector intersects with the target ship AND the shoot vector and this ship's rotation vector are very close to each other
+			emit_signal("shoot", shootBaseSpeed, null)
+			self.turn_to(P2, 1)
+		else:
+			self.turn_to(P2, 1)
+
 	else:
 		P2 = null
 		intercepting = true
 		# just turn towards the player so we get a better angle on them...
 		# use the interception function!
-		var targetIntercept = self.intercept(position, possible_bullet_velocity, targetPos, targetVec)
+		var targetIntercept = self.intercept(position, selfShootVec.length(), targetPos, targetVec)
 		P1 = targetIntercept
 		self.turn_to(targetIntercept, 1)
 		
-	# TODO: thrust....
-	
+	if isFacingTarget && distancePID.getError() < -70:
+		#pass
+		#print("thrust")
+		self.thrust(1, delta)
+		
+	position += velocity * delta
 	queue_redraw() # redraw
 
 func turn_to(targetPos, angle_mod):
 		var turn_angle = Vector2.UP.rotated(rotation).angle_to(targetPos - self.position)
 		var turn_angle_c = clamp(turn_angle, -PI * rotationSpeed, PI * rotationSpeed) as float
 		if !is_nan(turn_angle):
+			print(turn_angle_c)
 			rotation += turn_angle_c * angle_mod
 	
 func intersect(pos1, vec1, pos3, vec3):
-	var pos2 = pos1 + (vec1.normalized() * 1000)
-	var pos4 = pos3 + (vec3.normalized() * 1000)
+	var pos2 = pos1 + (vec1.normalized() * 1)
+	var pos4 = pos3 + (vec3.normalized() * 1)
 	var x1 = pos1.x
 	var y1 = pos1.y
 	var x2 = pos2.x
@@ -105,8 +120,8 @@ func intersect(pos1, vec1, pos3, vec3):
 	var ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator
 	var ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator
 
-	if (ua < 0 || ua > 1 || ub < 0 || ub > 1):
-		return null # line is outside of the line segments defined by pos1-pos2 and pos3-pos4
+	#if (ua < 0 || ua > 1 || ub < 0 || ub > 1):
+	#	return null # line is outside of the line segments defined by pos1-pos2 and pos3-pos4
 
 	return Vector2(x1 + ua * (x2 - x1), y1 + ua * (y2 - y1))  
 
@@ -118,15 +133,22 @@ func rotate_(angle: float):
 	rotation += clamp(angle, -PI * rotationSpeed, PI * rotationSpeed) as float
 
 func _draw():
-	var inv = get_global_transform().inverse()
-	#if thrust_vec != null:
-#		draw_set_transform(Vector2.ZERO, inv.get_rotation(), Vector2.ONE) # undo global rotation
-#		draw_line(Vector2.ZERO, thrust_vec, Color.BLUE, 2.0)
-	if P1 != null:
-		draw_set_transform(inv.origin, inv.get_rotation(), Vector2.ONE) # undo global rotation and position
-		draw_circle(P1, 10, Color.YELLOW if intercepting else Color.GREEN)
-		if P2 != null:
-			draw_circle(P2, 5, Color.GREEN)
+	if showDebugInfo:
+		var inv = get_global_transform().inverse()
+		if selfShootVec != null:
+			draw_set_transform(Vector2.ZERO, inv.get_rotation(), Vector2.ONE) # undo global rotation
+			draw_line(Vector2.ZERO, selfShootVec, Color(0,1,0,0.25), 2.0)
+		if P1 != null:
+			draw_set_transform(inv.origin, inv.get_rotation(), Vector2.ONE) # undo global rotation and position
+			draw_circle(P1, 30, Color.YELLOW if intercepting else Color(0,1,0,0.25))
+			if P2 != null:
+				draw_circle(P2, 5, Color(0, 0.4, 0, 0.25))
+				draw_circle(P1, 3, Color(0, 0, 0, 0.25))
+		if selfShootVec != null:
+			draw_set_transform(Vector2.ZERO, inv.get_rotation(), Vector2.ONE) # undo global rotation
+			draw_line(Vector2.ZERO, Vector2.UP.rotated(rotation) * 1000, Color(0, 1, 1, 0.25), 2.0)
+			draw_line(Vector2.ZERO, targetRelVec, Color(0, 0, 0, 0.25), 2.0)
+			draw_line(Vector2.ZERO, Vector2.UP.rotated(rotation) * distancePID.getError(), Color(0, 0, 1, 0.25), 2.0)
 
 func intercept(shooter: Vector2, bullet_speed: float, target: Vector2, target_velocity: Vector2):
 	var displacement = shooter - target
