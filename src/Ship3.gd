@@ -24,6 +24,7 @@ var selfRelShootVec
 var targetRelVec
 
 var debugpoints = []
+var debuglines = []
 
 func _ready():
 	pass
@@ -70,7 +71,10 @@ func _process(delta):
 		var z = abs((P1 - P2).length())
 		var moveCorrection = self.turn_to(P2, 1)
 		var angleBetween = forwards.angle_to(selfShootVec)
-		if secondsUntilShotAtP1 > 0 && (z < 30): # TODO: also shoot if the current shoot vector intersects with the target ship AND the shoot vector and this ship's rotation vector are very close to each other
+		var shootVectorOffsetToTargetVec = targetRelPos - ((targetRelPos.dot(selfShootVec) / (selfShootVec.length() * selfShootVec.length())) * selfShootVec)
+		debuglines.push_front(shootVectorOffsetToTargetVec)
+		# when z is small, it's pretty much a guaranteed hit; when shootVectorOffsetToTargetVec.length() is small, it's not guaranteed but possible.
+		if secondsUntilShotAtP1 > 0 && (z < 1 || shootVectorOffsetToTargetVec.length() < 60):
 			emit_signal("shoot", shootBaseSpeed, null)
 
 	else:
@@ -149,13 +153,19 @@ func _draw():
 			draw_line(Vector2.ZERO, targetRelVec, Color(0, 0, 0, 0.25), 2.0)
 			draw_line(Vector2.ZERO, forwards * distancePID.getError(), Color(0, 0, 1, 0.25), 2.0)
 		
-		draw_set_transform(Vector2.ZERO, inv.get_rotation(), Vector2.ONE) # undo global rotation
-		
 		if debugpoints.size() > 0:
+			draw_set_transform(Vector2.ZERO, inv.get_rotation(), Vector2.ONE) # undo global rotation
 			print(debugpoints)
 			for pt in debugpoints:
 				draw_circle(pt, 10, Color(1,1,1,1))
 			debugpoints.clear()
+			
+		if debuglines.size() > 0:
+			draw_set_transform(Vector2.ZERO, inv.get_rotation(), Vector2.ONE) # undo global rotation
+			print(debuglines)
+			for pl in debuglines:
+				draw_line(Vector2.ZERO, pl, Color(1,1,1,1), 2.0)
+			debuglines.clear()
 
 func intercept(shooter: Vector2, bullet_speed: float, target: Vector2, target_velocity: Vector2):
 	var displacement = shooter - target
