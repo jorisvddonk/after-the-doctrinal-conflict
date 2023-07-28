@@ -8,11 +8,7 @@ const RISE_LOWER_AMOUNT = 10 # determines by how much the area between the lines
 
 func _ready():
 	randomize()
-	var imageTexture = ImageTexture.new()
-	var dynImage = Image.new()
-
-
-	dynImage.create(WIDTH,HEIGHT,false,Image.FORMAT_RGB8)
+	var dynImage = Image.create(WIDTH,HEIGHT,false,Image.FORMAT_RGB8)
 	dynImage.fill(Color(0.1,0.1,0,1))
 	
 	var arr = []
@@ -67,12 +63,8 @@ func _ready():
 		for j in range(HEIGHT):
 			var p = float(arr[j * WIDTH + i]) / fI
 			dynImage.set_pixel(i, j, gradient.sample(p))
-	#dynImage.unlock()
 	
-	imageTexture.create_from_image(dynImage)
+	var imageTexture = ImageTexture.create_from_image(dynImage)
 	self.texture = imageTexture
-	
-	# okay, this doesn't work anymore in godot 4...
-	# TODO: fix.
 	
 	queue_redraw()
